@@ -192,7 +192,7 @@ locationId: string;
 
 ### Filter 
 
-```yaml
+```json
 {
   "order": "name",
   "include": [
@@ -244,6 +244,119 @@ ORDER BY
 
 
 ## @hasMany
+
+<details>
+  <summary>GET /clients (include projects where project status != 4)</summary>
+
+### Relation
+
+```ts
+@hasMany(() => Project, {keyTo: 'clientId'})
+projects: Project[];
+```
+
+### Filter 
+
+```json
+{
+  "limit": 5,
+  "order": "id",
+  "include": [
+    {
+      "relation": "projects",
+      "scope": {
+        "where": { "status": { "neq": 4 } }
+      }
+    }
+  ]
+}
+```
+
+### Query
+
+```sql
+SELECT 
+  "clients".*, 
+  "projects"."id" AS "projects.id", 
+  "projects"."name" AS "projects.name", 
+  /* ... other `projects` table columns ... */
+FROM 
+  (
+    SELECT 
+      "clients"."id", 
+      "clients"."name", 
+      /* ... other `projects` table columns ... */
+    FROM 
+      "main"."clients" AS "clients" 
+    WHERE 
+      "clients"."tenant_id" = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' 
+    ORDER BY 
+      "clients"."id" ASC 
+    LIMIT 
+      5
+  ) AS "clients" 
+  LEFT OUTER JOIN "main"."projects" AS "projects" ON "clients"."id" = "projects"."client_id" 
+  AND "projects"."status" != 4 
+ORDER BY 
+  "clients"."id" ASC;
+
+```
+</details>
+
+<details>
+  <summary>GET /deals (include dealContacts)</summary>
+
+### Relation
+
+```ts
+@hasMany(() => DealContact, {keyTo: 'dealId'})
+dealContacts: DealContact[];
+```
+
+### Filter 
+
+```json
+{
+  "limit": 1,
+  "order": "id",
+  "include": [
+    {
+      "relation": "dealContacts"
+    }
+  ]
+}
+```
+
+### Query
+
+```sql
+SELECT 
+  "deals".*, 
+  "dealContacts"."id" AS "dealContacts.id", 
+  "dealContacts"."contact_id" AS "dealContacts.contactId", 
+  /* ... other `deal_contacts` table columns ... */
+  
+FROM 
+  (
+    SELECT 
+      "deals"."id", 
+      "deals"."name", 
+      /* ... all `deals` table columns ... */
+    FROM 
+      "main"."deals" AS "deals" 
+    WHERE 
+      "deals"."tenant_id" = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' 
+    ORDER BY 
+      "deals"."id" ASC 
+    LIMIT 
+      1
+  ) AS "deals" 
+  LEFT OUTER JOIN "main"."deal_contacts" AS "dealContacts" ON "deals"."id" = "dealContacts"."deal_id" 
+ORDER BY 
+  "deals"."id" ASC;
+```
+</details>
+
 ## @hasMany through
 ## @hasOne
 ## @referencesMany
