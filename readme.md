@@ -163,6 +163,86 @@ LIMIT 1;
 </details>
 
 
+<details>
+  <summary>GET /resources (include Delivery department resources and their locationKey)</summary>
+
+### Relation
+
+```ts
+@belongsTo(
+  () => Department,
+  {name: 'department'},
+  {
+    name: 'department_id',
+    required: true,
+  },
+)
+departmentId: string;
+
+@belongsTo(
+  () => Location,
+  {name: 'location'},
+  {
+    name: 'location_id',
+    required: true,
+  },
+)
+locationId: string;
+```
+
+### Filter 
+
+```yaml
+{
+  "order": "name",
+  "include": [
+    {
+      "relation": "department",
+      "scope": {
+        "where": {
+          "name": "Delivery"
+        },
+        "fields": { "name": true }
+      },
+      "required": true
+    },
+    {
+      "relation": "location",
+      "scope": {
+        "fields": { "locationKey": true }
+      }
+    }
+  ]
+}
+```
+
+### Query
+
+```sql
+SELECT 
+  "resources"."id", 
+  "resources"."name", 
+  /* ... other `resources` table columns ... */
+  
+  "department"."id" AS "department.id", 
+  "department"."name" AS "department.name", 
+  "location"."id" AS "location.id", 
+  "location"."location_key" AS "location.locationKey" 
+FROM 
+  "main"."resources" AS "resources" 
+  INNER JOIN "main"."departments" AS "department" ON "resources"."department_id" = "department"."id" 
+  AND "department"."name" = 'Delivery' 
+  LEFT OUTER JOIN "main"."locations" AS "location" ON "resources"."location_id" = "location"."id" 
+WHERE 
+  "resources"."tenant_id" = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' 
+ORDER BY 
+  "resources"."name" ASC;
+
+
+```
+</details>
+
+
 ## @hasMany
 ## @hasMany through
 ## @hasOne
