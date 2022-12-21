@@ -358,5 +358,66 @@ ORDER BY
 </details>
 
 ## @hasMany through
+
+<details>
+  <summary>GET /contacts (include deals thorugh dealContacts)</summary>
+
+### Relation
+
+```ts
+@hasMany(() => Deal, {
+  through: {model: () => DealContact, keyFrom: 'contactId', keyTo: 'dealId'},
+})
+deals: Deal[];
+```
+
+### Filter 
+
+```json
+{
+  "limit": 4,
+  "order": "id",
+  "include": [
+    {
+      "relation": "deals",
+      "scope": {
+        "fields": { "owner": true, "type": true }
+      }
+    }
+  ]
+}
+```
+
+### Query
+```sql
+SELECT 
+  "contacts".*, 
+  "deals"."id" AS "deals.id", 
+  "deals"."owner" AS "deals.owner", 
+  "deals"."type" AS "deals.type", 
+  
+  "deals->deal_contacts"."contact_id" AS "deals.deal_contacts.contactId", 
+  "deals->deal_contacts"."is_primary" AS "deals.deal_contacts.isPrimary", 
+  /* ... other `deal_contacts` table columns ... */
+  
+FROM 
+  (
+    SELECT 
+      "contacts"."id", 
+      /* ... all `contacts` table columns ... */
+    FROM 
+      "main"."contacts" AS "contacts" 
+    WHERE 
+      "contacts"."tenant_id" = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' 
+    LIMIT 
+      4
+  ) AS "contacts" 
+  LEFT OUTER JOIN (
+    "main"."deal_contacts" AS "deals->deal_contacts" 
+    INNER JOIN "main"."deals" AS "deals" ON "deals"."id" = "deals->deal_contacts"."deal_id"
+  ) ON "contacts"."id" = "deals->deal_contacts"."contact_id";
+```
+</details>
+
 ## @hasOne
 ## @referencesMany
