@@ -3,7 +3,7 @@
 ## @belongsTo
 
 <details>
-  <summary>GET /deals (include related project)</summary>
+  <summary>GET /deals  <b><i> (include related project) </i></b> </summary>
 
 ### Relation
 
@@ -55,7 +55,7 @@ LIMIT 1;
 
 
 <details>
-  <summary>GET /deals (include related project and dealStage)</summary>
+  <summary>GET /deals <b><i>(include related project and dealStage)</i></b></summary>
 
 ### Relation
 
@@ -120,7 +120,7 @@ LIMIT 1;
 
 
 <details>
-  <summary>GET /deal-views (include related dealStage)</summary>
+  <summary>GET /deal-views <b><i>(include related dealStage)</i></b></summary>
 
 ### Relation
 
@@ -164,7 +164,7 @@ LIMIT 1;
 
 
 <details>
-  <summary>GET /resources (include Delivery department resources and their locationKey)</summary>
+  <summary>GET /resources <b><i>(include Delivery department resources and their locationKey)</i></b></summary>
 
 ### Relation
 
@@ -246,7 +246,7 @@ ORDER BY
 ## @hasMany
 
 <details>
-  <summary>GET /clients (include projects where project status != 4)</summary>
+  <summary>GET /clients <b><i>(include projects where project status != 4)</i></b></summary>
 
 ### Relation
 
@@ -304,7 +304,7 @@ ORDER BY
 </details>
 
 <details>
-  <summary>GET /deals (include dealContacts)</summary>
+  <summary>GET /deals <b><i>(include dealContacts)</i></b></summary>
 
 ### Relation
 
@@ -360,7 +360,7 @@ ORDER BY
 ## @hasMany through
 
 <details>
-  <summary>GET /contacts (include deals thorugh dealContacts)</summary>
+  <summary>GET /contacts <b><i>(include deals through dealContacts)</i></b></summary>
 
 ### Relation
 
@@ -419,5 +419,71 @@ FROM
 ```
 </details>
 
+> Note: The response will contain the through model data, which is something that differs from how loopback returned the data with same filter
+
 ## @hasOne
+> Found no model using @hasOne
+
 ## @referencesMany
+
+<details>
+  <summary>GET /project-allocations <b><i>(include resourceAllocations referenced by resourceAllocationIds)</i></b></summary>
+
+### Relation
+
+```ts
+ @referencesMany(
+  () => ResourceAllocationView,
+  {name: 'resourceAllocations'},
+  {name: 'resource_allocation_ids'},
+)
+resourceAllocationIds: string[];
+```
+
+### Filter 
+
+```json
+{
+  "order": "id",
+  "include": [
+    {
+      "relation": "resourceAllocations"
+    }
+  ]
+}
+```
+
+### Query
+
+1.
+```sql
+SELECT 
+  "id", 
+  "resource_id" AS "resourceId", 
+  /* ... other `v_project_allocations` columns ... */
+FROM 
+  "main"."v_project_allocations" AS "v_project_allocations" 
+WHERE 
+  "v_project_allocations"."tenant_id" = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' 
+ORDER BY 
+  "v_project_allocations"."id" ASC;
+
+```
+
+2. 
+```sql
+SELECT
+  "id", 
+  "resource_id"
+  /* ... all `v_resource_allocations` columns ... */
+FROM 
+  "main"."v_resource_allocations" 
+WHERE 
+  "id" IN (
+    $1, $2, $3, $4, $5
+  ) 
+ORDER BY 
+  "id"
+
+```
+</details>
