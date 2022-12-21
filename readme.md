@@ -2,11 +2,10 @@
 
 ## @belongsTo
 
-### GET /deals 
-> include related project
-
 <details>
-  <summary>Relation</summary>
+  <summary>GET /deals (include related project)</summary>
+
+### Relation
 
 ```ts
 @belongsTo(
@@ -16,10 +15,8 @@
 )
 projectId: string;
 ```
-</details>
 
-<details>
-  <summary>Filter</summary>
+### Filter 
 
 ```json
 {
@@ -32,12 +29,8 @@ projectId: string;
    ]
 }
 ```
-</details>
 
-
-
-<details>
-  <summary>Query</summary>
+### Query
 
 ```sql
 SELECT 
@@ -60,13 +53,11 @@ LIMIT 1;
 
 </details>
 
----
-
-### GET /deals 
-> include related project and dealStage
 
 <details>
-  <summary>Relation</summary>
+  <summary>GET /deals (include related project and dealStage)</summary>
+
+### Relation
 
 ```ts
 @belongsTo(
@@ -81,10 +72,8 @@ projectId: string;
 @belongsTo(() => DealStage, {keyTo: 'stageId'}, {name: 'stage_id'})
 dealStageId: string;
 ```
-</details>
 
-<details>
-  <summary>Filter</summary>
+### Filter 
 
 ```json
 {
@@ -100,11 +89,8 @@ dealStageId: string;
    ]
 }
 ```
-</details>
 
-
-<details>
-  <summary>Query</summary>
+### Query
 
 ```sql
 SELECT 
@@ -129,43 +115,34 @@ ORDER BY
   "deals"."id" ASC 
 LIMIT 1;
 
-
 ```
-
 </details>
 
----
-
-### GET /deal-views
-> include related dealStage
 
 <details>
-  <summary>Relation</summary>
+  <summary>GET /deal-views (include related dealStage)</summary>
+
+### Relation
 
 ```ts
 @belongsTo(() => DealStage, {keyTo: 'stageId'}, {name: 'stage_id'})
 dealStageId: string;
 ```
-</details>
 
-<details>
-  <summary>Filter</summary>
+### Filter 
 
 ```json
 {
-   "limit":1,
+   "limit": 1,
    "include":[
       {
-         "relation":"dealStage"
+         "relation": "dealStage"
       }
    ]
 }
 ```
-</details>
 
-
-<details>
-  <summary>Query</summary>
+### Query
 
 ```sql
 SELECT 
@@ -182,12 +159,9 @@ FROM
 WHERE 
   "v_deal_view"."tenant_id" = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' 
 LIMIT 1;
-
 ```
-
 </details>
 
----
 
 ## @hasMany
 ## @hasMany through
